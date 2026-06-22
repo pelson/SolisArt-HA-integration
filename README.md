@@ -115,7 +115,7 @@ The test suite runs against anonymised fixtures from a real box (firmware
 against a real box, populate `secrets.env` (gitignored) with:
 
 ```bash
-export SOLISART_TEST_HOST=http://<box-ip>
+export SOLISART_TEST_HOST=<box-ip>     # bare host or IP, no http:// prefix
 export SOLISART_TEST_USER=<username>
 export SOLISART_TEST_PASS=<password>
 export SOLISART_TEST_INSTALL_ID=<install-id>

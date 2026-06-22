@@ -47,7 +47,7 @@
   },
   "options": {
     "step": {
-      "behavior": {
+      "init": {
         "title": "Update behaviour",
         "data": {
           "update_mode": "Refresh mode",

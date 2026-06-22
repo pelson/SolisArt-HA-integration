@@ -13,6 +13,7 @@ from homeassistant.helpers.update_coordinator import CoordinatorEntity
 
 from .const import CONF_EXPOSE_DIAGNOSTIC, DOMAIN
 from .coordinator import SolisartCoordinator
+from .diagnostics import SAFE_DIAG_CODE_RE
 
 
 async def async_setup_entry(
@@ -28,8 +29,12 @@ async def async_setup_entry(
         entities.append(SolisartSensor(coordinator, code))
         seen.add(code)
     if entry.options.get(CONF_EXPOSE_DIAGNOSTIC, False):
+        # Only expose codes whose symbol is in the diagnostics allow-list
+        # — keeps install ID, MAC, IPs, owner labels off the entity registry.
         for code in snap.raw:
             if code in seen or code in snap.binary:
+                continue
+            if not SAFE_DIAG_CODE_RE.match(code):
                 continue
             entities.append(SolisartDiagnosticSensor(coordinator, code))
     async_add_entities(entities)
