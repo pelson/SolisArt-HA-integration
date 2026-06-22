@@ -4,7 +4,7 @@ HACS-installable custom integration for SolisArt solar thermal controllers.
 
 ## Status
 
-v0.1 — read-only. Writes and setpoint control are deferred to v0.2.
+v0.1.1 — read-only. Writes and setpoint control are deferred to v0.2.
 
 License: Apache-2.0. The protocol facts implemented here (endpoint URLs,
 form-field names, request shape) originate from the reverse-engineering
@@ -54,41 +54,52 @@ Restart HA after the symlink is in place.
 
 ## Configuration
 
-The config flow walks through three screens:
+The config flow walks through three screens. Each screen only shows the
+fields that apply to your chosen mode.
 
 ### Step 1: Connection mode
 
-- **Mode** — choose `local` (direct LAN), `cloud`, or `local-with-cloud-fallback`.
-- **Box address** (local/fallback modes) — enter the full URL including the
-  scheme, e.g. `http://192.0.2.10`. The `http://` prefix is required; entering
-  a bare IP address will fail. This is a known v0.1 rough edge tracked for
-  improvement in v0.2.
-- **Cloud URL** (cloud/fallback modes) — defaults to `https://my.solisart.fr`.
+Pick one of:
 
-### Step 2: Credentials
+- **Local** — direct LAN access to the box. You will be asked for the box
+  address and local credentials on the next screen.
+- **Cloud** — go through `my.solisart.fr`. You will be asked for cloud
+  credentials and your installation ID.
+- **Local with cloud fallback** — try local first, fall back to cloud if the
+  box is unreachable. You will be asked for both sets of credentials.
 
-Enter the username and password for the box. The box ships with a default
-account (`util`/`util`); change these in the box's admin interface before
-exposing it on a network you do not fully control.
+### Step 2: Local box (local / fallback modes)
 
-### Step 3: Refresh behaviour
+- **Box address** — full URL including scheme, e.g. `http://192.0.2.10`. The
+  `http://` prefix is required; a bare IP will currently fail. (Tracked for
+  v0.2.)
+- **Local username / password** — default `util` / `util`; change these in
+  the box's admin interface before exposing it to a network you do not fully
+  control.
 
-- **Refresh mode** — see "Refresh modes" below.
-- **Interval** — shown when a timer mode is selected.
+### Step 3: my.solisart.fr cloud (cloud / fallback modes)
+
+- **Cloud URL** — defaults to `https://my.solisart.fr`.
+- **Cloud username / password** — the credentials you use on the website.
+- **Installation ID** — visible in the URL bar once you log in to the cloud
+  UI.
+
+### Step 4: Refresh behaviour
+
+- **Refresh mode** — `Manuel` (no polling) or `Minuterie` (interval polling).
+- **Interval (minutes)** — shown only when `Minuterie` is selected; 1–360,
+  default 30.
 
 ## Refresh modes
-
-The integration offers three refresh strategies:
 
 | Mode | Label | Description |
 |---|---|---|
 | `manual` | Manuel | No automatic polling. Use the Refresh button to fetch on demand. Default. |
-| `slow` | Minuterie lente | Poll on a fixed interval between 5 and 360 minutes (default: 30). |
-| `fast` | Minuterie rapide | Poll on a fixed interval between 1 and 60 minutes. |
+| `timer` | Minuterie | Poll on a fixed interval, 1–360 minutes (default: 30). |
 
-The default is `manuel` (button-driven). This is deliberate: the integration
+The default is `Manuel` (button-driven). This is deliberate: the integration
 was developed on a Raspberry Pi B, which saturates its CPU on repeated async
-HTTP polls. If your hardware is more capable, `minuterie lente` at 30-minute
+HTTP polls. If your hardware is more capable, `Minuterie` at 30-minute
 intervals is a reasonable starting point.
 
 ## Known limitations
