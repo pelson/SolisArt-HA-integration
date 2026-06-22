@@ -1,0 +1,81 @@
+{
+  "config": {
+    "step": {
+      "endpoint": {
+        "title": "Mode de connexion",
+        "data": {
+          "mode": "Mode",
+          "local_url": "Adresse de la box",
+          "cloud_url": "URL cloud"
+        }
+      },
+      "credentials_local": {
+        "title": "Identifiants (box locale)",
+        "data": {
+          "username_local": "Identifiant local",
+          "password_local": "Mot de passe local"
+        }
+      },
+      "credentials_cloud": {
+        "title": "Identifiants (cloud)",
+        "data": {
+          "username_cloud": "Identifiant my.solisart.fr",
+          "password_cloud": "Mot de passe my.solisart.fr",
+          "install_id": "Identifiant d'installation"
+        }
+      },
+      "behavior": {
+        "title": "Comportement de mise à jour",
+        "data": {
+          "update_mode": "Mode de rafraîchissement",
+          "update_interval_min": "Intervalle (minutes)",
+          "expose_diagnostic": "Exposer toutes les données disponibles (capteurs diagnostic)"
+        }
+      },
+      "reauth_confirm": {
+        "title": "Réauthentification"
+      }
+    },
+    "error": {
+      "invalid_auth": "Identifiants invalides",
+      "cannot_connect": "Connexion impossible à la box",
+      "cannot_resolve_install_id": "Identifiant d'installation introuvable"
+    },
+    "abort": {
+      "already_configured": "Cette installation est déjà configurée"
+    }
+  },
+  "options": {
+    "step": {
+      "behavior": {
+        "title": "Comportement de mise à jour",
+        "data": {
+          "update_mode": "Mode de rafraîchissement",
+          "update_interval_min": "Intervalle (minutes)",
+          "expose_diagnostic": "Exposer toutes les données disponibles (capteurs diagnostic)"
+        }
+      }
+    }
+  },
+  "selector": {
+    "mode": {
+      "options": {
+        "local": "Local",
+        "cloud": "Cloud",
+        "fallback": "Local avec bascule cloud"
+      }
+    },
+    "update_mode": {
+      "options": {
+        "manual": "Manuel",
+        "slow": "Minuterie lente",
+        "fast": "Minuterie rapide"
+      }
+    }
+  },
+  "entity": {
+    "button": {
+      "refresh": { "name": "Rafraîchir" }
+    }
+  }
+}

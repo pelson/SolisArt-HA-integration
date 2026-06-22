@@ -1,0 +1,81 @@
+{
+  "config": {
+    "step": {
+      "endpoint": {
+        "title": "Connection mode",
+        "data": {
+          "mode": "Mode",
+          "local_url": "Box address",
+          "cloud_url": "Cloud URL"
+        }
+      },
+      "credentials_local": {
+        "title": "Credentials (local box)",
+        "data": {
+          "username_local": "Local username",
+          "password_local": "Local password"
+        }
+      },
+      "credentials_cloud": {
+        "title": "Credentials (cloud)",
+        "data": {
+          "username_cloud": "my.solisart.fr username",
+          "password_cloud": "my.solisart.fr password",
+          "install_id": "Installation ID"
+        }
+      },
+      "behavior": {
+        "title": "Update behaviour",
+        "data": {
+          "update_mode": "Refresh mode",
+          "update_interval_min": "Interval (minutes)",
+          "expose_diagnostic": "Expose all available data (diagnostic sensors)"
+        }
+      },
+      "reauth_confirm": {
+        "title": "Re-authentication"
+      }
+    },
+    "error": {
+      "invalid_auth": "Invalid credentials",
+      "cannot_connect": "Cannot connect to the box",
+      "cannot_resolve_install_id": "Installation ID not found"
+    },
+    "abort": {
+      "already_configured": "This installation is already configured"
+    }
+  },
+  "options": {
+    "step": {
+      "behavior": {
+        "title": "Update behaviour",
+        "data": {
+          "update_mode": "Refresh mode",
+          "update_interval_min": "Interval (minutes)",
+          "expose_diagnostic": "Expose all available data (diagnostic sensors)"
+        }
+      }
+    }
+  },
+  "selector": {
+    "mode": {
+      "options": {
+        "local": "Local",
+        "cloud": "Cloud",
+        "fallback": "Local with cloud fallback"
+      }
+    },
+    "update_mode": {
+      "options": {
+        "manual": "Manual",
+        "slow": "Slow timer",
+        "fast": "Fast timer"
+      }
+    }
+  },
+  "entity": {
+    "button": {
+      "refresh": { "name": "Refresh" }
+    }
+  }
+}
