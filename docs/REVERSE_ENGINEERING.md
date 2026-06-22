@@ -239,9 +239,13 @@ boxes are: `donnee="1"` (vendor hostname), `donnee="3"` (install ID),
 
 ---
 
-## Credits
+## Credits and licensing of the protocol facts
 
-Protocol understanding is derived from two sources:
+This integration is licensed Apache-2.0 (see `LICENSE`). The protocol
+**facts** (endpoint URLs, form-field names, request body shape, dict-file
+format, value encoding) recorded above are not original to this project,
+but neither are they copyrightable expression — they are dictated by the
+box. They originate from two sources:
 
 - [jean1492/SolisArt-HomeAssistant](https://github.com/jean1492/SolisArt-HomeAssistant)
   (GPL-3.0) — the original read-side reverse engineering of the SolisArt HTTP
@@ -250,3 +254,9 @@ Protocol understanding is derived from two sources:
   specifically the `commun-donnees.<hash>.js` discovery path (reading the hash
   from the installation page script tags) and the install-ID extraction method
   from landing-page hrefs.
+
+No source code from jean1492's project is carried over to this repository.
+The implementation here is from-scratch, written against captured XML and
+JS fixtures from two physical boxes (firmware 3.0.13 and 3.0.18) using an
+async aiohttp client, typed dataclasses, and Home Assistant's config-flow
++ coordinator pattern — none of which are present in jean1492's code.

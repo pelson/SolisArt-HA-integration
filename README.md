@@ -6,9 +6,12 @@ HACS-installable custom integration for SolisArt solar thermal controllers.
 
 v0.1 — read-only. Writes and setpoint control are deferred to v0.2.
 
-License: GPL-3.0. Read-side protocol understanding derived from
-[jean1492/SolisArt-HomeAssistant](https://github.com/jean1492/SolisArt-HomeAssistant)
-and pelson's 2022 unpublished reverse-engineering notes.
+License: Apache-2.0. The protocol facts implemented here (endpoint URLs,
+form-field names, request shape) originate from the reverse-engineering
+work of [jean1492/SolisArt-HomeAssistant](https://github.com/jean1492/SolisArt-HomeAssistant)
+(GPL-3.0) and pelson's 2022 unpublished notes. No source code from
+either project is carried over — this is a from-scratch implementation
+against captured fixtures from real boxes (firmware 3.0.13 and 3.0.18).
 
 ## What you get
 
@@ -130,13 +133,18 @@ uv run pytest tests/test_smoke_live.py -v
 
 ## Credits and license
 
-GPL-3.0. See `LICENSE`.
+Apache-2.0. See `LICENSE`.
 
-Protocol understanding is derived from two sources:
+Protocol understanding (URLs, form fields, request body shape, dict-file
+format, value-encoding rules) was learned from two sources, but no source
+code from either is included in this repository:
 
 - [jean1492/SolisArt-HomeAssistant](https://github.com/jean1492/SolisArt-HomeAssistant)
   (GPL-3.0) — the original read-side reverse engineering of the SolisArt HTTP
-  protocol.
+  protocol. Their codebase is a 89-line synchronous `urllib` script plus
+  YAML template packages; this integration is an async, typed,
+  config-flow-driven Home Assistant custom component re-implemented from
+  scratch against captured XML/JS fixtures from two physical boxes.
 - An unpublished personal script by Phil Elson (2022) — additional protocol
   details, in particular the `commun-donnees.<hash>.js` dict-file discovery
   path and the install-ID extraction method.

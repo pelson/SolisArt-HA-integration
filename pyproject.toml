@@ -3,7 +3,7 @@ name = "solisart-ha"
 version = "0.1.0"
 description = "SolisArt solar thermal controller integration for Home Assistant"
 requires-python = ">=3.12"
-license = { text = "GPL-3.0-only" }
+license = { text = "Apache-2.0" }
 authors = [{ name = "Phil Elson", email = "pelson.pub@gmail.com" }]
 
 [project.optional-dependencies]
