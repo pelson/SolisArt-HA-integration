@@ -79,3 +79,16 @@ _ha_uc = _make_module(
     DataUpdateCoordinator=DataUpdateCoordinator,
     UpdateFailed=UpdateFailed,
 )
+
+
+class DeviceInfo(dict):
+    """Stub matching HA's TypedDict-style DeviceInfo."""
+
+    def __init__(self, **kwargs) -> None:
+        super().__init__(**kwargs)
+
+
+_ha_dr = _make_module(
+    "homeassistant.helpers.device_registry",
+    DeviceInfo=DeviceInfo,
+)
