@@ -14,10 +14,10 @@ from .xml_parser import parse_snapshot_xml
 
 _LOGGER = logging.getLogger(__name__)
 _DICT_RE = re.compile(r"commun-donnees\.[a-zA-Z0-9_]+\.js")
-# Install ID appears in landing-page hrefs as `?page=installation&id=<ID>`
-# or similar. IDs are alphanumeric (e.g. "SC1Z00000000"), not purely
-# numeric — do NOT restrict to \d.
+# Install ID appears in landing-page hrefs as `?page=installation&id=<ID>`.
+# IDs are alphanumeric (e.g. "SC1Z00000000"), not purely numeric.
 _INSTALL_ID_RE = re.compile(r"[?&]id=([A-Za-z0-9_-]+)")
+_LOGIN_FORM_MARKER = 'name="pass"'
 
 
 class SolisartAuthError(Exception):
@@ -26,6 +26,17 @@ class SolisartAuthError(Exception):
 
 class SolisartConnectionError(Exception):
     pass
+
+
+def make_session() -> aiohttp.ClientSession:
+    """Build an aiohttp session suitable for talking to a SolisArt box.
+
+    SolisArt boxes are typically reached by IP, and aiohttp's default cookie
+    jar refuses to store cookies for IP-address hosts — which would break
+    the PHPSESSID handshake every request. Using ``unsafe=True`` lets the
+    PHP session cookie persist for local-IP installations.
+    """
+    return aiohttp.ClientSession(cookie_jar=aiohttp.CookieJar(unsafe=True))
 
 
 class SolisartClient:
@@ -50,8 +61,7 @@ class SolisartClient:
     def install_id(self) -> str | None:
         return self._install_id
 
-    async def _try_login_on(self, base: str) -> str | None:
-        """Returns landing-page HTML on success, None on auth failure."""
+    async def _post_login_form(self, base: str) -> None:
         data = {
             "id": self._username,
             "pass": self._password,
@@ -64,12 +74,27 @@ class SolisartClient:
             ) as resp:
                 if resp.status >= 500:
                     raise SolisartConnectionError(f"{base} returned {resp.status}")
-                text = await resp.text()
+                await resp.read()
         except aiohttp.ClientError as exc:
             raise SolisartConnectionError(str(exc)) from exc
-        if 'name="pass"' in text and 'name="id"' in text:
-            return None  # login form re-rendered → auth failure
-        return text
+
+    async def _fetch_admin_landing(self, base: str) -> str:
+        """Return the /admin/ landing HTML. The login POST always re-renders
+        the login page regardless of success — auth must be confirmed by a
+        follow-up GET to /admin/."""
+        try:
+            async with self._session.get(f"{base}/admin/") as resp:
+                return await resp.text()
+        except aiohttp.ClientError as exc:
+            raise SolisartConnectionError(str(exc)) from exc
+
+    async def _try_login_on(self, base: str) -> str | None:
+        """Returns admin-page HTML on success, None on auth failure."""
+        await self._post_login_form(base)
+        landing = await self._fetch_admin_landing(base)
+        if _LOGIN_FORM_MARKER in landing:
+            return None
+        return landing
 
     async def login(self) -> None:
         last_err: Exception | None = None
@@ -129,8 +154,8 @@ class SolisartClient:
         except aiohttp.ClientError as exc:
             raise SolisartConnectionError(str(exc)) from exc
 
-        # PHP session expired → login page re-renders. Re-auth once, retry.
-        if 'name="pass"' in text and 'name="id"' in text:
+        # PHP session expired → endpoint redirects/renders login. Re-auth once, retry.
+        if _LOGIN_FORM_MARKER in text:
             _LOGGER.info("solisart session expired, re-logging in")
             self._base = None
             await self.login()
