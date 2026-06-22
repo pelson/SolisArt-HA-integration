@@ -1,0 +1,21 @@
+[project]
+name = "solisart-ha"
+version = "0.1.0"
+description = "SolisArt solar thermal controller integration for Home Assistant"
+requires-python = ">=3.12"
+license = { text = "GPL-3.0-only" }
+authors = [{ name = "Phil Elson", email = "pelson.pub@gmail.com" }]
+
+[project.optional-dependencies]
+dev = ["pytest>=8", "pytest-asyncio>=0.23", "aiohttp>=3.9", "ruff>=0.5"]
+
+[tool.pytest.ini_options]
+asyncio_mode = "auto"
+testpaths = ["tests"]
+
+[tool.ruff]
+line-length = 100
+target-version = "py312"
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "UP", "B", "SIM"]

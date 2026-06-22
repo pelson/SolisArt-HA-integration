@@ -1,0 +1,11 @@
+{
+  "domain": "solisart",
+  "name": "SolisArt",
+  "version": "0.1.0",
+  "codeowners": ["@pelson"],
+  "config_flow": true,
+  "documentation": "https://github.com/pelson/SolisArt-HA-integration",
+  "issue_tracker": "https://github.com/pelson/SolisArt-HA-integration/issues",
+  "iot_class": "local_polling",
+  "requirements": []
+}
