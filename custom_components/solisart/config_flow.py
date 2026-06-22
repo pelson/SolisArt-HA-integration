@@ -32,15 +32,14 @@ from .const import (
     CONF_USERNAME_CLOUD,
     CONF_USERNAME_LOCAL,
     DEFAULT_CLOUD_URL,
-    DEFAULT_SLOW_INTERVAL_MIN,
+    DEFAULT_TIMER_INTERVAL_MIN,
     DEFAULT_UPDATE_MODE,
     DOMAIN,
     MODE_CLOUD,
     MODE_FALLBACK,
     MODE_LOCAL,
-    UPDATE_MODE_FAST,
     UPDATE_MODE_MANUAL,
-    UPDATE_MODE_SLOW,
+    UPDATE_MODE_TIMER,
 )
 
 _MODE_SELECTOR = SelectSelector(
@@ -53,7 +52,7 @@ _MODE_SELECTOR = SelectSelector(
 
 _UPDATE_MODE_SELECTOR = SelectSelector(
     SelectSelectorConfig(
-        options=[UPDATE_MODE_MANUAL, UPDATE_MODE_SLOW, UPDATE_MODE_FAST],
+        options=[UPDATE_MODE_MANUAL, UPDATE_MODE_TIMER],
         mode=SelectSelectorMode.DROPDOWN,
         translation_key="update_mode",
     )
@@ -90,7 +89,7 @@ async def _validate(hass, data: dict) -> dict[str, str]:
 
 
 class SolisartConfigFlow(ConfigFlow, domain=DOMAIN):
-    VERSION = 1
+    VERSION = 2
 
     def __init__(self) -> None:
         self._data: dict[str, Any] = {}
@@ -163,7 +162,7 @@ class SolisartConfigFlow(ConfigFlow, domain=DOMAIN):
             )
         schema = vol.Schema({
             vol.Required(CONF_UPDATE_MODE, default=DEFAULT_UPDATE_MODE): _UPDATE_MODE_SELECTOR,
-            vol.Optional(CONF_UPDATE_INTERVAL_MIN, default=DEFAULT_SLOW_INTERVAL_MIN): int,
+            vol.Optional(CONF_UPDATE_INTERVAL_MIN, default=DEFAULT_TIMER_INTERVAL_MIN): int,
             vol.Required(CONF_EXPOSE_DIAGNOSTIC, default=False): bool,
         })
         return self.async_show_form(step_id="behavior", data_schema=schema)
@@ -224,7 +223,7 @@ class SolisartOptionsFlow(OptionsFlow):
             ): _UPDATE_MODE_SELECTOR,
             vol.Optional(
                 CONF_UPDATE_INTERVAL_MIN,
-                default=opts.get(CONF_UPDATE_INTERVAL_MIN, DEFAULT_SLOW_INTERVAL_MIN),
+                default=opts.get(CONF_UPDATE_INTERVAL_MIN, DEFAULT_TIMER_INTERVAL_MIN),
             ): int,
             vol.Required(
                 CONF_EXPOSE_DIAGNOSTIC,

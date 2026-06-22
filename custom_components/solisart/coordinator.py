@@ -11,9 +11,8 @@ from .api.client import SolisartAuthError, SolisartClient, SolisartConnectionErr
 from .api.model import Snapshot
 from .const import (
     POST_WRITE_REFRESH_DELAY,
-    UPDATE_MODE_FAST,
     UPDATE_MODE_MANUAL,
-    UPDATE_MODE_SLOW,
+    UPDATE_MODE_TIMER,
 )
 
 _LOGGER = logging.getLogger(__name__)
@@ -22,7 +21,7 @@ _LOGGER = logging.getLogger(__name__)
 def _interval_for(mode: str, minutes: int) -> timedelta | None:
     if mode == UPDATE_MODE_MANUAL:
         return None
-    if mode in (UPDATE_MODE_SLOW, UPDATE_MODE_FAST):
+    if mode == UPDATE_MODE_TIMER:
         return timedelta(minutes=minutes)
     raise ValueError(f"unknown update mode: {mode}")
 

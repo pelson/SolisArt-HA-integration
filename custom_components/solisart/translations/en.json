@@ -68,8 +68,7 @@
     "update_mode": {
       "options": {
         "manual": "Manual",
-        "slow": "Slow timer",
-        "fast": "Fast timer"
+        "timer": "Timer"
       }
     }
   },

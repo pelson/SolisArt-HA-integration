@@ -68,8 +68,7 @@
     "update_mode": {
       "options": {
         "manual": "Manuel",
-        "slow": "Minuterie lente",
-        "fast": "Minuterie rapide"
+        "timer": "Minuterie"
       }
     }
   },

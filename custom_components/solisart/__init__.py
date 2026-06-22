@@ -18,10 +18,11 @@ from .const import (
     CONF_UPDATE_MODE,
     CONF_USERNAME_CLOUD,
     CONF_USERNAME_LOCAL,
-    DEFAULT_SLOW_INTERVAL_MIN,
+    DEFAULT_TIMER_INTERVAL_MIN,
     DOMAIN,
     MODE_CLOUD,
     MODE_LOCAL,
+    UPDATE_MODE_TIMER,
 )
 from .coordinator import SolisartCoordinator
 
@@ -70,7 +71,7 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
         update_mode=entry.options.get(CONF_UPDATE_MODE, entry.data.get(CONF_UPDATE_MODE)),
         interval_min=entry.options.get(
             CONF_UPDATE_INTERVAL_MIN,
-            entry.data.get(CONF_UPDATE_INTERVAL_MIN, DEFAULT_SLOW_INTERVAL_MIN),
+            entry.data.get(CONF_UPDATE_INTERVAL_MIN, DEFAULT_TIMER_INTERVAL_MIN),
         ),
     )
     await coordinator.async_config_entry_first_refresh()
@@ -81,6 +82,15 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
     }
     await hass.config_entries.async_forward_entry_setups(entry, PLATFORMS)
     entry.async_on_unload(entry.add_update_listener(_async_options_updated))
+    return True
+
+
+async def async_migrate_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
+    if entry.version < 2:
+        new_options = dict(entry.options)
+        if new_options.get(CONF_UPDATE_MODE) in ("slow", "fast"):
+            new_options[CONF_UPDATE_MODE] = UPDATE_MODE_TIMER
+        hass.config_entries.async_update_entry(entry, options=new_options, version=2)
     return True
 
 
