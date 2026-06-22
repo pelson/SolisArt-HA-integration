@@ -4,6 +4,7 @@ import aiohttp
 from homeassistant.config_entries import ConfigEntry
 from homeassistant.const import Platform
 from homeassistant.core import HomeAssistant
+from homeassistant.helpers.device_registry import DeviceInfo
 
 from .api.client import SolisartClient, make_session
 from .api.endpoint import EndpointStrategy
@@ -62,6 +63,24 @@ def _client_from_entry(
     )
 
 
+def _device_info(entry: ConfigEntry) -> DeviceInfo:
+    data = {**entry.data, **entry.options}
+    mode = data.get(CONF_MODE)
+    if mode == MODE_CLOUD:
+        url = data.get(CONF_CLOUD_URL)
+    else:
+        url = data.get(CONF_LOCAL_URL) or data.get(CONF_CLOUD_URL)
+    install_id = data.get(CONF_INSTALL_ID) or entry.entry_id
+    return DeviceInfo(
+        identifiers={(DOMAIN, install_id)},
+        name="SolisArt",
+        manufacturer="SolisArt",
+        model="SolisArt box",
+        configuration_url=url,
+        serial_number=data.get(CONF_INSTALL_ID),
+    )
+
+
 async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
     session = make_session()
     client = _client_from_entry(session, {**entry.data, **entry.options})
@@ -79,6 +98,7 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
         "coordinator": coordinator,
         "client": client,
         "session": session,
+        "device_info": _device_info(entry),
     }
     await hass.config_entries.async_forward_entry_setups(entry, PLATFORMS)
     entry.async_on_unload(entry.add_update_listener(_async_options_updated))

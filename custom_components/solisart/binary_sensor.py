@@ -15,20 +15,23 @@ async def async_setup_entry(
     entry: ConfigEntry,
     async_add_entities: AddEntitiesCallback,
 ) -> None:
-    coordinator: SolisartCoordinator = hass.data[DOMAIN][entry.entry_id]["coordinator"]
+    bucket = hass.data[DOMAIN][entry.entry_id]
+    coordinator: SolisartCoordinator = bucket["coordinator"]
+    device_info = bucket["device_info"]
     async_add_entities(
-        SolisartBinary(coordinator, code) for code in coordinator.data.binary
+        SolisartBinary(coordinator, code, device_info) for code in coordinator.data.binary
     )
 
 
 class SolisartBinary(CoordinatorEntity[SolisartCoordinator], BinarySensorEntity):
     _attr_has_entity_name = True
 
-    def __init__(self, coordinator: SolisartCoordinator, code: str) -> None:
+    def __init__(self, coordinator: SolisartCoordinator, code: str, device_info) -> None:
         super().__init__(coordinator)
         self._code = code
         self._attr_unique_id = f"solisart_{code}"
         self._attr_name = code
+        self._attr_device_info = device_info
 
     @property
     def is_on(self) -> bool | None:

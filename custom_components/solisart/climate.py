@@ -20,9 +20,11 @@ async def async_setup_entry(
     entry: ConfigEntry,
     async_add_entities: AddEntitiesCallback,
 ) -> None:
-    coordinator: SolisartCoordinator = hass.data[DOMAIN][entry.entry_id]["coordinator"]
+    bucket = hass.data[DOMAIN][entry.entry_id]
+    coordinator: SolisartCoordinator = bucket["coordinator"]
+    device_info = bucket["device_info"]
     zones = coordinator.data.zones
-    async_add_entities(SolisartZone(coordinator, z.index) for z in zones)
+    async_add_entities(SolisartZone(coordinator, z.index, device_info) for z in zones)
 
 
 class SolisartZone(CoordinatorEntity[SolisartCoordinator], ClimateEntity):
@@ -31,10 +33,11 @@ class SolisartZone(CoordinatorEntity[SolisartCoordinator], ClimateEntity):
     _attr_supported_features = ClimateEntityFeature(0)  # read-only in v0.1
     _attr_hvac_modes = [HVACMode.AUTO]
 
-    def __init__(self, coordinator: SolisartCoordinator, index: int) -> None:
+    def __init__(self, coordinator: SolisartCoordinator, index: int, device_info) -> None:
         super().__init__(coordinator)
         self._index = index
         self._attr_unique_id = f"solisart_zone_{index}"
+        self._attr_device_info = device_info
         zone = self._zone()
         self._attr_name = zone.label if zone else f"Zone {index}"
 

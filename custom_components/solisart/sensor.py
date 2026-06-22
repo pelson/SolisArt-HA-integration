@@ -21,12 +21,14 @@ async def async_setup_entry(
     entry: ConfigEntry,
     async_add_entities: AddEntitiesCallback,
 ) -> None:
-    coordinator: SolisartCoordinator = hass.data[DOMAIN][entry.entry_id]["coordinator"]
+    bucket = hass.data[DOMAIN][entry.entry_id]
+    coordinator: SolisartCoordinator = bucket["coordinator"]
+    device_info = bucket["device_info"]
     snap = coordinator.data
     entities: list[SensorEntity] = []
     seen: set[str] = set()
     for code, _reading in snap.sensors.items():
-        entities.append(SolisartSensor(coordinator, code))
+        entities.append(SolisartSensor(coordinator, code, device_info))
         seen.add(code)
     if entry.options.get(CONF_EXPOSE_DIAGNOSTIC, False):
         # Only expose codes whose symbol is in the diagnostics allow-list
@@ -36,17 +38,18 @@ async def async_setup_entry(
                 continue
             if not SAFE_DIAG_CODE_RE.match(code):
                 continue
-            entities.append(SolisartDiagnosticSensor(coordinator, code))
+            entities.append(SolisartDiagnosticSensor(coordinator, code, device_info))
     async_add_entities(entities)
 
 
 class SolisartSensor(CoordinatorEntity[SolisartCoordinator], SensorEntity):
     _attr_has_entity_name = True
 
-    def __init__(self, coordinator: SolisartCoordinator, code: str) -> None:
+    def __init__(self, coordinator: SolisartCoordinator, code: str, device_info) -> None:
         super().__init__(coordinator)
         self._code = code
         self._attr_unique_id = f"solisart_{code}"
+        self._attr_device_info = device_info
         reading = coordinator.data.sensors[code]
         self._attr_name = reading.label
         self._attr_native_unit_of_measurement = reading.unit
@@ -68,11 +71,12 @@ class SolisartDiagnosticSensor(CoordinatorEntity[SolisartCoordinator], SensorEnt
     _attr_entity_category = EntityCategory.DIAGNOSTIC
     _attr_entity_registry_enabled_default = False
 
-    def __init__(self, coordinator: SolisartCoordinator, code: str) -> None:
+    def __init__(self, coordinator: SolisartCoordinator, code: str, device_info) -> None:
         super().__init__(coordinator)
         self._code = code
         self._attr_unique_id = f"solisart_diag_{code}"
         self._attr_name = code
+        self._attr_device_info = device_info
 
     @property
     def native_value(self):
