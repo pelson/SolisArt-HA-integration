@@ -10,3 +10,6 @@ venv/
 htmlcov/
 *.log
 .DS_Store
+
+# Local-only secrets for running smoke tests against a real box.
+secrets.env
