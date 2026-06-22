@@ -4,21 +4,21 @@
       "endpoint": {
         "title": "Connection mode",
         "data": {
-          "mode": "Mode",
-          "local_url": "Box address",
-          "cloud_url": "Cloud URL"
+          "mode": "Mode"
         }
       },
       "credentials_local": {
-        "title": "Credentials (local box)",
+        "title": "Local box",
         "data": {
+          "local_url": "Box address",
           "username_local": "Local username",
           "password_local": "Local password"
         }
       },
       "credentials_cloud": {
-        "title": "Credentials (cloud)",
+        "title": "my.solisart.fr cloud",
         "data": {
+          "cloud_url": "Cloud URL",
           "username_cloud": "my.solisart.fr username",
           "password_cloud": "my.solisart.fr password",
           "install_id": "Installation ID"

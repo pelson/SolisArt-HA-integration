@@ -97,7 +97,7 @@ class SolisartConfigFlow(ConfigFlow, domain=DOMAIN):
     async def async_step_user(self, user_input=None) -> FlowResult:
         return await self.async_step_endpoint(user_input)
 
-    async def async_step_endpoint(self, user_input=None) -> FlowResult:
+    async def async_step_endpoint(self, user_input=None, errors=None) -> FlowResult:
         if user_input is not None:
             self._data.update(user_input)
             mode = user_input[CONF_MODE]
@@ -105,50 +105,69 @@ class SolisartConfigFlow(ConfigFlow, domain=DOMAIN):
                 return await self.async_step_credentials_local()
             return await self.async_step_credentials_cloud()
         schema = vol.Schema({
-            vol.Required(CONF_MODE, default=MODE_LOCAL): _MODE_SELECTOR,
-            vol.Optional(CONF_LOCAL_URL): str,
-            vol.Optional(CONF_CLOUD_URL, default=DEFAULT_CLOUD_URL): str,
+            vol.Required(
+                CONF_MODE, default=self._data.get(CONF_MODE, MODE_LOCAL)
+            ): _MODE_SELECTOR,
         })
-        return self.async_show_form(step_id="endpoint", data_schema=schema)
+        return self.async_show_form(
+            step_id="endpoint", data_schema=schema, errors=errors,
+        )
 
-    async def async_step_credentials_local(self, user_input=None) -> FlowResult:
+    async def async_step_credentials_local(self, user_input=None, errors=None) -> FlowResult:
         if user_input is not None:
             self._data.update(user_input)
             if self._data[CONF_MODE] == MODE_FALLBACK:
                 return await self.async_step_credentials_cloud()
-            return await self._finalise()
+            return await self._finalise(last_step="credentials_local")
         schema = vol.Schema({
-            vol.Required(CONF_USERNAME_LOCAL): str,
-            vol.Required(CONF_PASSWORD_LOCAL): str,
+            vol.Optional(
+                CONF_LOCAL_URL, default=self._data.get(CONF_LOCAL_URL, "")
+            ): str,
+            vol.Required(
+                CONF_USERNAME_LOCAL,
+                default=self._data.get(CONF_USERNAME_LOCAL, vol.UNDEFINED),
+            ): str,
+            vol.Required(
+                CONF_PASSWORD_LOCAL,
+                default=self._data.get(CONF_PASSWORD_LOCAL, vol.UNDEFINED),
+            ): str,
         })
-        return self.async_show_form(step_id="credentials_local", data_schema=schema)
+        return self.async_show_form(
+            step_id="credentials_local", data_schema=schema, errors=errors,
+        )
 
-    async def async_step_credentials_cloud(self, user_input=None) -> FlowResult:
+    async def async_step_credentials_cloud(self, user_input=None, errors=None) -> FlowResult:
         if user_input is not None:
             self._data.update(user_input)
-            return await self._finalise()
+            return await self._finalise(last_step="credentials_cloud")
         schema = vol.Schema({
-            vol.Required(CONF_USERNAME_CLOUD): str,
-            vol.Required(CONF_PASSWORD_CLOUD): str,
-            vol.Required(CONF_INSTALL_ID): str,
+            vol.Optional(
+                CONF_CLOUD_URL,
+                default=self._data.get(CONF_CLOUD_URL, DEFAULT_CLOUD_URL),
+            ): str,
+            vol.Required(
+                CONF_USERNAME_CLOUD,
+                default=self._data.get(CONF_USERNAME_CLOUD, vol.UNDEFINED),
+            ): str,
+            vol.Required(
+                CONF_PASSWORD_CLOUD,
+                default=self._data.get(CONF_PASSWORD_CLOUD, vol.UNDEFINED),
+            ): str,
+            vol.Required(
+                CONF_INSTALL_ID,
+                default=self._data.get(CONF_INSTALL_ID, vol.UNDEFINED),
+            ): str,
         })
-        return self.async_show_form(step_id="credentials_cloud", data_schema=schema)
+        return self.async_show_form(
+            step_id="credentials_cloud", data_schema=schema, errors=errors,
+        )
 
-    async def _finalise(self) -> FlowResult:
+    async def _finalise(self, last_step: str) -> FlowResult:
         errors = await _validate(self.hass, self._data)
         if errors:
-            return self.async_show_form(
-                step_id="endpoint",
-                data_schema=vol.Schema({
-                    vol.Required(CONF_MODE, default=self._data[CONF_MODE]): _MODE_SELECTOR,
-                    vol.Optional(CONF_LOCAL_URL, default=self._data.get(CONF_LOCAL_URL, "")): str,
-                    vol.Optional(
-                        CONF_CLOUD_URL,
-                        default=self._data.get(CONF_CLOUD_URL, DEFAULT_CLOUD_URL),
-                    ): str,
-                }),
-                errors=errors,
-            )
+            if last_step == "credentials_local":
+                return await self.async_step_credentials_local(errors=errors)
+            return await self.async_step_credentials_cloud(errors=errors)
         return await self.async_step_behavior()
 
     async def async_step_behavior(self, user_input=None) -> FlowResult:
