@@ -4,7 +4,12 @@ HACS-installable custom integration for SolisArt solar thermal controllers.
 
 ## Status
 
-v0.1.1 — read-only. Writes and setpoint control are deferred to v0.2.
+Read-only. The integration's scope is reading data from the SolisArt
+box: temperatures, flow meters, relay states, and zone temperatures.
+Writing back to the box (setpoints, schedules, mode changes) is not
+implemented — the box's write protocol batches a full configuration
+payload rather than accepting individual field updates, which makes
+safe partial writes non-trivial.
 
 License: Apache-2.0. The protocol facts implemented here (endpoint URLs,
 form-field names, request shape) originate from the reverse-engineering
@@ -23,8 +28,7 @@ snapshot POST to the box:
 - One `sensor` per flow meter (`fl_N`, N = 1..6): value in L/min.
 - One `binary_sensor` per active relay (`rl_N`): on/off state.
 - One read-only `climate` entity per heating zone (zones 11..14 in the box's
-  numbering): current temperature only; setpoints and mode writes are out of
-  scope for v0.1.
+  numbering): current temperature only.
 - One `button` entity ("Rafraichir / Refresh"): triggers an immediate snapshot
   fetch outside of the configured refresh schedule.
 
@@ -107,7 +111,8 @@ intervals is a reasonable starting point.
 - **No device discovery.** The box address must be entered manually; mDNS/DHCP
   discovery is not implemented in v0.1.
 - **No writes or setpoints.** Climate entities are read-only. Scheduling
-  changes, zone setpoints, and relay commands are deferred to v0.2.
+  changes, zone setpoints, and relay commands are not implemented — see
+  the Status section for why.
 - **`tr_*` codes partially modelled.** Values with the pattern `"0pC"` or
   `"100pC"` (possibly modulation duty cycles) appear in the box snapshot but
   are not exposed as entities in v0.1.
